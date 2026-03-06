@@ -7,42 +7,64 @@ const School = require('../models/School');
 // @route   POST /api/users/admin/register
 // @access  Public
 const registerAdmin = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  try {
+    console.log('[REGISTER_ADMIN] Request body:', req.body);
+    
+    const { name, email, password } = req.body;
 
-  const userExists = await User.findOne({ email });
+    if (!name || !email || !password) {
+      console.log('[REGISTER_ADMIN] Missing required fields');
+      return res.status(400).json({ message: 'Name, email, and password are required' });
+    }
 
-  if (userExists) {
-    res.status(400);
-    throw new Error('User already exists');
-  }
+    const userExists = await User.findOne({ email });
+    console.log('[REGISTER_ADMIN] User exists check:', !!userExists);
 
-  const user = await User.create({
-    name,
-    email,
-    password,
-    role: 'admin',
-  });
+    if (userExists) {
+      console.log('[REGISTER_ADMIN] User already exists');
+      return res.status(400).json({ message: 'User already exists' });
+    }
 
-  if (user) {
-    const school = await School.create({
-      name: `${name}'s School`,
-      admin: user._id,
+    console.log('[REGISTER_ADMIN] Creating new user...');
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role: 'admin',
     });
 
-    user.school = school._id;
-    await user.save();
+    console.log('[REGISTER_ADMIN] User created:', !!user);
 
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      school: user.school,
-      token: generateToken(user._id, user.school, user.role),
-    });
-  } else {
-    res.status(400);
-    throw new Error('Invalid user data');
+    if (user) {
+      console.log('[REGISTER_ADMIN] Creating school for user...');
+      const school = await School.create({
+        name: `${name}'s School`,
+        admin: user._id,
+      });
+
+      console.log('[REGISTER_ADMIN] School created:', !!school);
+
+      user.school = school._id;
+      await user.save();
+
+      console.log('[REGISTER_ADMIN] User updated with school');
+      
+      res.status(201).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        school: user.school,
+        token: generateToken(user._id, user.school, user.role),
+      });
+    } else {
+      console.log('[REGISTER_ADMIN] Failed to create user');
+      res.status(400).json({ message: 'Invalid user data' });
+    }
+  } catch (error) {
+    console.error('[REGISTER_ADMIN] Error:', error.message);
+    console.error('[REGISTER_ADMIN] Stack:', error.stack);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 

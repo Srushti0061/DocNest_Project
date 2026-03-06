@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "static-build/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://nba-e12s.onrender.com/api/$1"
+    },
+    {
+      "src": "/uploads/(.*)",
+      "dest": "https://nba-e12s.onrender.com/uploads/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/static-build/$1"
+    }
+  ]
+}
