@@ -48,18 +48,31 @@ const getCriterias = asyncHandler(async (req, res) => {
 // @access  Private/Faculty
 const getMyCriterias = asyncHandler(async (req, res) => {
   const user = req.user;
+  console.log('[GET_MY_CRITERIA] User from req.user:', user?._id, user?.email, user?.role);
+  console.log('[GET_MY_CRITERIA] User assignedCriteria from token:', user?.assignedCriteria);
+  
   if (!user) {
     res.status(401);
     throw new Error('Not authorized');
   }
-  if (!Array.isArray(user.assignedCriteria) || user.assignedCriteria.length === 0) {
+  
+  // Get the user with populated assignedCriteria
+  const userWithCriteria = await User.findById(user._id).populate('assignedCriteria');
+  console.log('[GET_MY_CRITERIA] User with populated criteria:', userWithCriteria?._id);
+  console.log('[GET_MY_CRITERIA] Assigned criteria count:', userWithCriteria?.assignedCriteria?.length || 0);
+  
+  if (!Array.isArray(userWithCriteria.assignedCriteria) || userWithCriteria.assignedCriteria.length === 0) {
+    console.log('[GET_MY_CRITERIA] No criteria found, returning empty array');
     return res.json([]);
   }
 
   // Extract only the _id from the populated assignedCriteria array
-  const assignedCriteriaIds = user.assignedCriteria.map(c => c._id);
+  const assignedCriteriaIds = userWithCriteria.assignedCriteria.map(c => c._id);
+  console.log('[GET_MY_CRITERIA] Criteria IDs to fetch:', assignedCriteriaIds);
 
   const criterias = await Criteria.find({ _id: { $in: assignedCriteriaIds }, school: user.school });
+  console.log('[GET_MY_CRITERIA] Found criteria:', criterias.length);
+  
   res.json(criterias);
 });
 

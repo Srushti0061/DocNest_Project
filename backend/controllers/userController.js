@@ -229,8 +229,59 @@ const authUser = asyncHandler(async (req, res) => {
 // @route   GET /api/users/faculty
 // @access  Private/Admin
 const getFaculty = asyncHandler(async (req, res) => {
-  const faculty = await User.find({ role: 'faculty', $or: [{ school: req.user.school }, { school: null }] }).select('-password');
+  const faculty = await User.find({ role: 'faculty', $or: [{ school: req.user.school }, { school: null }] }).select('-password').populate('assignedCriteria');
   res.json(faculty);
 });
 
-module.exports = { registerAdmin, authUser, registerFaculty, getFaculty, registerStudent, registerEvaluator };
+// @desc    Delete faculty user
+// @route   DELETE /api/users/faculty/:id
+// @access  Private/Admin
+const deleteFaculty = asyncHandler(async (req, res) => {
+  const faculty = await User.findById(req.params.id);
+  
+  if (!faculty) {
+    res.status(404);
+    throw new Error('Faculty not found');
+  }
+
+  if (faculty.role !== 'faculty') {
+    res.status(400);
+    throw new Error('User is not a faculty member');
+  }
+
+  // Check if admin belongs to the same school
+  if (faculty.school && req.user.school.toString() !== faculty.school.toString()) {
+    res.status(401);
+    throw new Error('Not authorized to delete faculty from this school');
+  }
+
+  await User.findByIdAndDelete(req.params.id);
+  res.json({ message: 'Faculty deleted successfully' });
+});
+
+// @desc    Get faculty with assigned criteria
+// @route   GET /api/users/faculty/:id
+// @access  Private/Admin
+const getFacultyWithCriteria = asyncHandler(async (req, res) => {
+  const faculty = await User.findById(req.params.id).select('-password').populate('assignedCriteria');
+  
+  if (!faculty) {
+    res.status(404);
+    throw new Error('Faculty not found');
+  }
+
+  if (faculty.role !== 'faculty') {
+    res.status(400);
+    throw new Error('User is not a faculty member');
+  }
+
+  // Check if admin belongs to the same school
+  if (faculty.school && req.user.school.toString() !== faculty.school.toString()) {
+    res.status(401);
+    throw new Error('Not authorized to view faculty from this school');
+  }
+
+  res.json(faculty);
+});
+
+module.exports = { registerAdmin, authUser, registerFaculty, getFaculty, deleteFaculty, getFacultyWithCriteria, registerStudent, registerEvaluator };

@@ -21,4 +21,21 @@ router.route('/assign-by-names').put(protect, admin, assignByNames);
 router.route('/with-assignments').get(protect, admin, getCriteriaWithAssignments);
 router.route('/mine').get(protect, getMyCriterias);
 
+// Debug endpoint to check user criteria
+router.get('/debug/my-criteria', protect, async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findById(req.user._id).populate('assignedCriteria');
+    res.json({
+      userId: req.user._id,
+      userEmail: req.user.email,
+      userRole: req.user.role,
+      assignedCriteriaCount: user.assignedCriteria?.length || 0,
+      assignedCriteria: user.assignedCriteria || []
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
