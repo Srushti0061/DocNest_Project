@@ -69,32 +69,230 @@ async function generateBarChart(labels, data, title) {
     return canvas.toBuffer('image/png');
 }
 
+// Helper function to generate a pie chart
+async function generatePieChart(labels, data, title) {
+    const width = 500;
+    const height = 400;
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
+
+    const colors = [
+        'rgba(255, 99, 132, 0.7)',
+        'rgba(54, 162, 235, 0.7)',
+        'rgba(255, 206, 86, 0.7)',
+        'rgba(75, 192, 192, 0.7)',
+        'rgba(153, 102, 255, 0.7)',
+        'rgba(255, 159, 64, 0.7)',
+        'rgba(199, 199, 199, 0.7)',
+        'rgba(83, 102, 255, 0.7)'
+    ];
+
+    const borderColors = [
+        'rgba(255, 99, 132, 1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(255, 159, 64, 1)',
+        'rgba(199, 199, 199, 1)',
+        'rgba(83, 102, 255, 1)'
+    ];
+
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors.slice(0, labels.length),
+                borderColor: borderColors.slice(0, labels.length),
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: title,
+                    font: {
+                        size: 16
+                    }
+                },
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    return canvas.toBuffer('image/png');
+}
+
+// Helper function to generate a doughnut chart
+async function generateDoughnutChart(labels, data, title) {
+    const width = 500;
+    const height = 400;
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
+
+    const colors = [
+        'rgba(255, 99, 132, 0.8)',
+        'rgba(54, 162, 235, 0.8)',
+        'rgba(255, 206, 86, 0.8)',
+        'rgba(75, 192, 192, 0.8)',
+        'rgba(153, 102, 255, 0.8)',
+        'rgba(255, 159, 64, 0.8)'
+    ];
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors.slice(0, labels.length),
+                borderColor: '#ffffff',
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: title,
+                    font: {
+                        size: 16
+                    }
+                },
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    return canvas.toBuffer('image/png');
+}
+
+// Helper function to generate a radar chart
+async function generateRadarChart(labels, data, title) {
+    const width = 500;
+    const height = 400;
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
+
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: title,
+                data: data,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgba(54, 162, 235, 1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: title,
+                    font: {
+                        size: 16
+                    }
+                }
+            },
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        stepSize: 20
+                    }
+                }
+            }
+        }
+    });
+
+    return canvas.toBuffer('image/png');
+}
+
 // Helper function to add a header to each page
 function addHeader(doc, pageNumber, totalPages) {
     const originalY = doc.y;
-    doc.fontSize(10)
-       .text('Evaluation Summary Report', 50, 40)
-       .text(`Page ${pageNumber} of ${totalPages}`, 500, 40, { align: 'right' });
-    doc.moveTo(50, 55).lineTo(550, 55).stroke('#e0e0e0');
+    
+    // Add header background
+    doc.fillColor('#2c3e50').rect(0, 0, 612, 70).fill();
+    
+    // Add title
+    doc.fillColor('#ffffff')
+       .fontSize(16)
+       .font('Helvetica-Bold')
+       .text('Evaluation Summary Report', 50, 35);
+    
+    // Add page number
+    doc.fillColor('#ecf0f1')
+       .fontSize(12)
+       .font('Helvetica')
+       .text(`Page ${pageNumber} of ${totalPages}`, 500, 35, { align: 'right' });
+    
+    // Add decorative line
+    doc.strokeColor('#3498db').lineWidth(3).moveTo(50, 70).lineTo(550, 70).stroke();
+    
     doc.y = originalY;
 }
 
 // Helper function to add a footer to each page
 function addFooter(doc) {
     const bottomY = 780; // Adjust based on your page size
-    doc.fontSize(8)
-       .text('Confidential - For internal use only', 50, bottomY, {
+    
+    // Add footer background
+    doc.fillColor('#ecf0f1').rect(0, bottomY - 20, 612, 20).fill();
+    
+    // Add footer text
+    doc.fillColor('#7f8c8d')
+       .fontSize(9)
+       .font('Helvetica-Oblique')
+       .text('Confidential - For internal use only', 50, bottomY - 10, {
            align: 'center',
            width: 500
        });
+    
+    // Add timestamp
+    doc.fillColor('#95a5a6')
+       .fontSize(8)
+       .font('Helvetica')
+       .text(`Generated on ${new Date().toLocaleString()}`, 50, bottomY - 25, {
+           align: 'right',
+           width: 200
+       });
 }
 
-// Generate evaluation summary PDF
 exports.generateEvaluationSummary = async (evaluatorId) => {
     console.log(`[PDF Generation] Starting PDF generation for evaluator: ${evaluatorId}`);
     
     try {
-        // Get all evaluations for the evaluator with detailed population
+        // Get all evaluations for evaluator with detailed population
         console.log(`[PDF Generation] Fetching evaluations for evaluator: ${evaluatorId}`);
         
         const evaluations = await Evaluation.find({ evaluator: evaluatorId })
@@ -105,8 +303,37 @@ exports.generateEvaluationSummary = async (evaluatorId) => {
 
         console.log(`[PDF Generation] Found ${evaluations.length} evaluations`);
         
-        if (evaluations.length === 0) {
-            const error = new Error('No evaluations found for this evaluator');
+        // Get all criteria assigned to this evaluator
+        const User = require('../models/User');
+        const user = await User.findById(evaluatorId).populate('assignedCriteria');
+        const assignedCriteria = user.assignedCriteria || [];
+        
+        // Get all student submissions for document tracking
+        const StudentSubmission = require('../models/StudentSubmission');
+        const allSubmissions = await StudentSubmission.find({ 
+            student: { $in: evaluations.map(e => e.submission?.student).filter(Boolean) }
+        }).populate('criteria', 'code name');
+        
+        // Group submissions by criteria
+        const submissionsByCriteria = {};
+        allSubmissions.forEach(submission => {
+            const criteriaId = submission.criteria?._id?.toString();
+            if (criteriaId) {
+                if (!submissionsByCriteria[criteriaId]) {
+                    submissionsByCriteria[criteriaId] = [];
+                }
+                submissionsByCriteria[criteriaId].push(submission);
+            }
+        });
+        
+        // Find missing criteria (assigned but no submissions)
+        const missingCriteria = assignedCriteria.filter(criteria => {
+            const criteriaId = criteria._id.toString();
+            return !submissionsByCriteria[criteriaId] || submissionsByCriteria[criteriaId].length === 0;
+        });
+        
+        if (evaluations.length === 0 && assignedCriteria.length === 0) {
+            const error = new Error('No evaluations or assigned criteria found for this evaluator');
             console.error('[PDF Generation] Error:', error.message);
             throw error;
         }
@@ -124,14 +351,18 @@ exports.generateEvaluationSummary = async (evaluatorId) => {
             byCriteria[criteriaId].evaluations.push(evalItem);
         });
 
-        // Calculate overall statistics
+        // Calculate comprehensive statistics
         const allMarks = evaluations.map(e => e.marks).filter(m => m !== undefined);
         const overallStats = {
             totalEvaluations: evaluations.length,
             totalCriteria: Object.keys(byCriteria).length,
+            assignedCriteria: assignedCriteria.length,
+            missingCriteria: missingCriteria.length,
+            totalSubmissions: allSubmissions.length,
             avgMarks: allMarks.length > 0 ? (allMarks.reduce((a, b) => a + b, 0) / allMarks.length).toFixed(2) : 0,
             maxMarks: allMarks.length > 0 ? Math.max(...allMarks) : 0,
-            minMarks: allMarks.length > 0 ? Math.min(...allMarks) : 0
+            minMarks: allMarks.length > 0 ? Math.min(...allMarks) : 0,
+            completionRate: assignedCriteria.length > 0 ? ((assignedCriteria.length - missingCriteria.length) / assignedCriteria.length * 100).toFixed(1) : 0
         };
 
         // Create a new PDF document with better defaults
@@ -169,92 +400,211 @@ exports.generateEvaluationSummary = async (evaluatorId) => {
             doc.moveDown(2);
         };
 
-        // Cover Page
-        doc.fontSize(24).text('EVALUATION SUMMARY REPORT', {
-            align: 'center',
-            underline: true,
-            lineGap: 10
-        });
+        // Enhanced Cover Page
+        // Add background gradient effect (simulated with rectangles)
+        doc.fillColor('#3498db').rect(0, 70, 612, 200).fill();
+        doc.fillColor('#2980b9').rect(0, 250, 612, 100).fill();
+        
+        // Add main title with better styling
+        doc.fillColor('#ffffff')
+           .fontSize(32)
+           .font('Helvetica-Bold')
+           .text('EVALUATION SUMMARY REPORT', {
+               align: 'center',
+               lineGap: 15
+           });
+        
+        doc.moveDown(2);
+        doc.fontSize(18)
+           .font('Helvetica')
+           .text('Comprehensive Performance Analysis', { align: 'center' });
         
         doc.moveDown(3);
-        doc.fontSize(16).text('Comprehensive Evaluation Report', { align: 'center' });
-        doc.moveDown(2);
-        doc.fontSize(12).text(`Generated on: ${now.toLocaleDateString()}`, { align: 'center' });
-        doc.text(`Total Evaluations: ${overallStats.totalEvaluations}`, { align: 'center' });
-        doc.text(`Total Criteria: ${overallStats.totalCriteria}`, { align: 'center' });
-        doc.text(`Overall Average: ${overallStats.avgMarks}%`, { align: 'center' });
+        doc.fontSize(14)
+           .text(`Generated on: ${now.toLocaleDateString()}`, { align: 'center' });
         
-        doc.moveDown(5);
-        doc.fontSize(10).text('Confidential - For internal use only', { align: 'center' });
+        // Add statistics in a styled box
+        const statsY = doc.y;
+        doc.fillColor('#ffffff').roundedRect(150, statsY, 312, 120, 10).fill();
+        doc.fillColor('#2c3e50').roundedRect(155, statsY + 5, 302, 110, 8).fill();
+        
+        doc.fillColor('#ffffff')
+           .fontSize(12)
+           .font('Helvetica-Bold')
+           .text('KEY METRICS', 306, statsY + 15, { align: 'center' });
+        
+        doc.fontSize(11)
+           .font('Helvetica')
+           .text(`Total Evaluations: ${overallStats.totalEvaluations}`, 306, statsY + 40, { align: 'center' });
+        doc.text(`Total Criteria: ${overallStats.totalCriteria}`, 306, statsY + 60, { align: 'center' });
+        doc.text(`Overall Average: ${overallStats.avgMarks}%`, 306, statsY + 80, { align: 'center' });
+        
+        doc.moveDown(8);
+        doc.fillColor('#ecf0f1')
+           .fontSize(10)
+           .font('Helvetica-Oblique')
+           .text('Confidential - For internal use only', { align: 'center' });
 
-        // Table of Contents
+        // Enhanced Table of Contents
         addNewPage();
         doc.fontSize(18).text('TABLE OF CONTENTS', { align: 'center', underline: true });
         doc.moveDown(2);
         
         // Add TOC items
         doc.fontSize(12).text('1. Executive Summary', { indent: 20 });
-        doc.text('2. Criteria-wise Analysis', { indent: 20 });
+        doc.text('2. Document Upload Status', { indent: 20 });
+        doc.text('3. Missing Criteria Analysis', { indent: 20 });
+        doc.text('4. Criteria-wise Analysis', { indent: 20 });
         
-        let tocIndex = 3;
+        let tocIndex = 5;
         Object.entries(byCriteria).forEach(([_, { criteria }], idx) => {
             doc.text(`${tocIndex++}. ${criteria.code} - ${criteria.name}`, { indent: 30 });
         });
         
         // Executive Summary
         addNewPage();
-        doc.fontSize(18).text('1. EXECUTIVE SUMMARY', { underline: true });
+        doc.fillColor('#2c3e50')
+           .fontSize(20)
+           .font('Helvetica-Bold')
+           .text('1. EXECUTIVE SUMMARY', { underline: true });
         doc.moveDown();
         
-        // Summary statistics
-        doc.fontSize(14).text('Overall Statistics', { underline: true });
+        // Summary statistics with enhanced styling
+        doc.fillColor('#34495e')
+           .fontSize(16)
+           .font('Helvetica-Bold')
+           .text('Overall Performance Metrics', { underline: true });
         doc.moveDown(0.5);
         
-        // Create a summary table
+        // Create a comprehensive summary table
         const summaryTable = {
-            headers: ['Metric', 'Value'],
+            headers: ['Metric', 'Value', 'Status'],
             rows: [
-                ['Total Evaluations', overallStats.totalEvaluations],
-                ['Total Criteria Evaluated', overallStats.totalCriteria],
-                ['Average Marks', `${overallStats.avgMarks}%`],
-                ['Highest Score', `${overallStats.maxMarks}%`],
-                ['Lowest Score', `${overallStats.minMarks}%`]
+                ['Total Evaluations', overallStats.totalEvaluations, overallStats.totalEvaluations > 10 ? 'Excellent' : 'Good'],
+                ['Assigned Criteria', overallStats.assignedCriteria, overallStats.assignedCriteria >= 5 ? 'Comprehensive' : 'Standard'],
+                ['Evaluated Criteria', overallStats.totalCriteria, overallStats.totalCriteria >= 5 ? 'Excellent' : 'Good'],
+                ['Document Uploads', overallStats.totalSubmissions, overallStats.totalSubmissions >= 10 ? 'Excellent' : 'Good'],
+                ['Missing Criteria', overallStats.missingCriteria, overallStats.missingCriteria === 0 ? 'Complete' : 'Needs Attention'],
+                ['Completion Rate', `${overallStats.completionRate}%`, overallStats.completionRate >= 80 ? 'Excellent' : overallStats.completionRate >= 60 ? 'Good' : 'Needs Improvement'],
+                ['Average Marks', `${overallStats.avgMarks}%`, overallStats.avgMarks >= 70 ? 'Above Target' : 'Needs Improvement'],
+                ['Highest Score', `${overallStats.maxMarks}%`, overallStats.maxMarks >= 90 ? 'Outstanding' : 'Good'],
+                ['Lowest Score', `${overallStats.minMarks}%`, overallStats.minMarks >= 60 ? 'Acceptable' : 'Review Needed']
             ]
         };
         
-        // Draw the summary table
+        // Draw the enhanced summary table
         const startY = doc.y;
-        const cellPadding = 5;
-        const col1Width = 200;
-        const col2Width = 100;
+        const cellPadding = 8;
+        const col1Width = 180;
+        const col2Width = 80;
+        const col3Width = 120;
         
-        // Draw headers
-        doc.rect(50, startY, col1Width, 20).fillAndStroke('#f0f0f0', '#000000');
-        doc.rect(50 + col1Width, startY, col2Width, 20).fillAndStroke('#f0f0f0', '#000000');
+        // Draw table header with gradient effect
+        doc.fillColor('#3498db').rect(50, startY, col1Width, 25).fill();
+        doc.fillColor('#3498db').rect(50 + col1Width, startY, col2Width, 25).fill();
+        doc.fillColor('#3498db').rect(50 + col1Width + col2Width, startY, col3Width, 25).fill();
         
-        doc.font('Helvetica-Bold').fontSize(10);
-        doc.text(summaryTable.headers[0], 55, startY + 5);
-        doc.text(summaryTable.headers[1], 55 + col1Width, startY + 5, { width: col2Width - 10, align: 'right' });
+        doc.fillColor('#ffffff')
+           .font('Helvetica-Bold')
+           .fontSize(11);
+        doc.text(summaryTable.headers[0], 55, startY + 8);
+        doc.text(summaryTable.headers[1], 55 + col1Width, startY + 8, { width: col2Width - 10, align: 'center' });
+        doc.text(summaryTable.headers[2], 55 + col1Width + col2Width, startY + 8, { width: col3Width - 10, align: 'center' });
         
-        // Draw rows
+        // Draw rows with alternating colors
         doc.font('Helvetica').fontSize(10);
         summaryTable.rows.forEach((row, i) => {
-            const y = startY + 20 + (i * 20);
-            doc.rect(50, y, col1Width, 20).stroke();
-            doc.rect(50 + col1Width, y, col2Width, 20).stroke();
+            const y = startY + 25 + (i * 22);
             
-            doc.text(row[0], 55, y + 5);
-            doc.text(row[1], 55 + col1Width, y + 5, { width: col2Width - 10, align: 'right' });
+            // Alternate row colors
+            if (i % 2 === 0) {
+                doc.fillColor('#f8f9fa').rect(50, y, col1Width + col2Width + col3Width, 22).fill();
+            }
+            
+            // Draw cell borders
+            doc.strokeColor('#dee2e6').lineWidth(0.5);
+            doc.rect(50, y, col1Width, 22).stroke();
+            doc.rect(50 + col1Width, y, col2Width, 22).stroke();
+            doc.rect(50 + col1Width + col2Width, y, col3Width, 22).stroke();
+            
+            // Add text
+            doc.fillColor('#2c3e50').text(row[0], 55, y + 6);
+            doc.fillColor('#2c3e50').text(row[1], 55 + col1Width, y + 6, { width: col2Width - 10, align: 'center' });
+            
+            // Color code the status
+            const statusColor = row[2].includes('Excellent') || row[2].includes('Outstanding') || row[2].includes('Above Target') || row[2].includes('Comprehensive') ? '#27ae60' :
+                             row[2].includes('Good') || row[2].includes('Acceptable') || row[2].includes('Standard') ? '#f39c12' : '#e74c3c';
+            doc.fillColor(statusColor).text(row[2], 55 + col1Width + col2Width, y + 6, { width: col3Width - 10, align: 'center' });
         });
+        
+        doc.moveDown(3);
+
+        // Add comprehensive charts section
+        doc.fillColor('#2c3e50')
+           .fontSize(16)
+           .font('Helvetica-Bold')
+           .text('Visual Performance Analysis', { underline: true });
+        doc.moveDown();
+
+        try {
+            // Generate criteria performance pie chart
+            const criteriaLabels = Object.keys(byCriteria).map(key => byCriteria[key].criteria.code);
+            const criteriaAverages = Object.keys(byCriteria).map(key => {
+                const marks = byCriteria[key].evaluations.map(e => e.marks).filter(m => m !== undefined);
+                return marks.length > 0 ? (marks.reduce((a, b) => a + b, 0) / marks.length).toFixed(1) : 0;
+            });
+
+            if (criteriaLabels.length > 0) {
+                const pieChart = await generatePieChart(criteriaLabels, criteriaAverages, 'Criteria Performance Distribution');
+                doc.image(pieChart, 50, doc.y, { width: 250 });
+                
+                // Generate grade distribution doughnut chart
+                const gradeRanges = {
+                    'Excellent (90-100%)': 0,
+                    'Good (75-89%)': 0,
+                    'Average (60-74%)': 0,
+                    'Below Average (<60%)': 0
+                };
+                
+                allMarks.forEach(mark => {
+                    if (mark >= 90) gradeRanges['Excellent (90-100%)']++;
+                    else if (mark >= 75) gradeRanges['Good (75-89%)']++;
+                    else if (mark >= 60) gradeRanges['Average (60-74%)']++;
+                    else gradeRanges['Below Average (<60%)']++;
+                });
+                
+                const doughnutChart = await generateDoughnutChart(
+                    Object.keys(gradeRanges), 
+                    Object.values(gradeRanges), 
+                    'Grade Distribution'
+                );
+                doc.image(doughnutChart, 320, doc.y - 180, { width: 250 });
+                
+                doc.moveDown(12);
+                
+                // Generate radar chart for criteria comparison
+                if (criteriaLabels.length >= 3) {
+                    const radarChart = await generateRadarChart(criteriaLabels, criteriaAverages, 'Criteria Performance Radar');
+                    doc.image(radarChart, 180, doc.y, { width: 250 });
+                    doc.moveDown(10);
+                }
+            }
+        } catch (error) {
+            console.error('Error generating charts:', error);
+            doc.text('Charts generation failed', { indent: 20 });
+        }
         
         doc.moveDown(2);
         
-        // Criteria-wise Analysis
+        // Enhanced Criteria-wise Analysis
         doc.addPage();
-        doc.fontSize(18).text('2. CRITERIA-WISE ANALYSIS', { underline: true });
+        doc.fillColor('#2c3e50')
+           .fontSize(20)
+           .font('Helvetica-Bold')
+           .text('2. CRITERIA-WISE ANALYSIS', { underline: true });
         doc.moveDown();
         
-        // Process each criteria
+        // Process each criteria with enhanced styling
         for (const [criteriaId, data] of Object.entries(byCriteria)) {
             const { criteria, evaluations } = data;
             const marks = evaluations.map(e => e.marks).filter(m => m !== undefined);
@@ -263,34 +613,60 @@ exports.generateEvaluationSummary = async (evaluatorId) => {
             const minMarks = marks.length > 0 ? Math.min(...marks) : 'N/A';
             
             // Check if we need a new page
-            if (doc.y > 650) {
+            if (doc.y > 600) {
                 addNewPage();
             } else {
                 doc.moveDown();
             }
             
-            // Criteria header
-            doc.fontSize(14).text(`${criteria.code} - ${criteria.name}`, {
-                underline: true,
-                paragraphGap: 5
-            });
+            // Add criteria header with background
+            const headerY = doc.y;
+            doc.fillColor('#3498db').roundedRect(50, headerY, 500, 35, 5).fill();
+            doc.fillColor('#ffffff')
+               .fontSize(14)
+               .font('Helvetica-Bold')
+               .text(`${criteria.code} - ${criteria.name}`, 60, headerY + 12);
+            
+            doc.moveDown(2);
             
             if (criteria.description) {
-                doc.fontSize(10).text(criteria.description, {
-                    paragraphGap: 5
-                });
+                doc.fillColor('#7f8c8d')
+                   .fontSize(10)
+                   .font('Helvetica-Oblique')
+                   .text(criteria.description, {
+                       paragraphGap: 5,
+                       indent: 10
+                   });
+                doc.moveDown();
             }
             
-            // Criteria stats
-            doc.fontSize(10).text(`• Total Evaluations: ${evaluations.length}`, {
-                indent: 20,
-                paragraphGap: 2
-            });
-            doc.text(`• Average Marks: ${avgMarks}%`, { indent: 20, paragraphGap: 2 });
-            doc.text(`• Highest Marks: ${maxMarks}%`, { indent: 20, paragraphGap: 2 });
-            doc.text(`• Lowest Marks: ${minMarks}%`, { indent: 20, paragraphGap: 2 });
+            // Create criteria stats box
+            const statsY = doc.y;
+            doc.fillColor('#ecf0f1').roundedRect(60, statsY, 480, 80, 5).fill();
+            doc.fillColor('#bdc3c7').roundedRect(65, statsY + 5, 470, 70, 3).fill();
             
-            // Add a chart if we have enough data
+            doc.fillColor('#2c3e50')
+               .fontSize(11)
+               .font('Helvetica-Bold')
+               .text('Performance Statistics', 75, statsY + 15);
+            
+            // Add stats in columns
+            doc.fontSize(10).font('Helvetica');
+            doc.text(`Total Evaluations: ${evaluations.length}`, 75, statsY + 35);
+            doc.text(`Average Marks: ${avgMarks}%`, 75, statsY + 50);
+            doc.text(`Highest Marks: ${maxMarks}%`, 250, statsY + 35);
+            doc.text(`Lowest Marks: ${minMarks}%`, 250, statsY + 50);
+            
+            // Performance indicator
+            const performanceColor = avgMarks >= 80 ? '#27ae60' : avgMarks >= 60 ? '#f39c12' : '#e74c3c';
+            const performanceText = avgMarks >= 80 ? 'Excellent' : avgMarks >= 60 ? 'Good' : 'Needs Improvement';
+            doc.fillColor(performanceColor)
+               .font('Helvetica-Bold')
+               .text(`Performance: ${performanceText}`, 420, statsY + 42);
+            
+            doc.moveDown(4);
+            
+            // Add individual chart for this criteria
             if (marks.length > 1) {
                 try {
                     const chartData = evaluations.map(e => ({
@@ -302,65 +678,60 @@ exports.generateEvaluationSummary = async (evaluatorId) => {
                     // Sort by date
                     chartData.sort((a, b) => new Date(a.date) - new Date(b.date));
                     
-                    const chartImage = await generateBarChart(
+                    // Generate bar chart for this criteria
+                    const barChart = await generateBarChart(
                         chartData.map((d, i) => `Eval ${i + 1}`),
                         chartData.map(d => d.value),
-                        `Marks Distribution - ${criteria.code}`
+                        `${criteria.code} Performance Trend`
                     );
                     
                     // Add chart to PDF
-                    const chartY = doc.y + 10;
-                    doc.image(chartImage, 50, chartY, { width: 500 });
-                    doc.y = chartY + 200; // Adjust based on chart height
+                    const chartY = doc.y;
+                    doc.image(barChart, 60, chartY, { width: 480 });
+                    doc.y = chartY + 220;
+                    
+                    // Add mini pie chart for grade distribution in this criteria
+                    const gradeRanges = {
+                        'Excellent': 0,
+                        'Good': 0,
+                        'Average': 0,
+                        'Poor': 0
+                    };
+                    
+                    marks.forEach(mark => {
+                        if (mark >= 90) gradeRanges['Excellent']++;
+                        else if (mark >= 75) gradeRanges['Good']++;
+                        else if (mark >= 60) gradeRanges['Average']++;
+                        else gradeRanges['Poor']++;
+                    });
+                    
+                    const hasGrades = Object.values(gradeRanges).some(count => count > 0);
+                    if (hasGrades) {
+                        const miniPieChart = await generatePieChart(
+                            Object.keys(gradeRanges).filter(key => gradeRanges[key] > 0),
+                            Object.values(gradeRanges).filter(count => count > 0),
+                            `${criteria.code} Grade Distribution`
+                        );
+                        
+                        doc.image(miniPieChart, 200, doc.y, { width: 200 });
+                        doc.y += 180;
+                    }
                 } catch (error) {
                     console.error('Error generating chart:', error);
-                    doc.text('Chart generation skipped for this criteria', { indent: 20 });
+                    doc.fillColor('#e74c3c')
+                       .fontSize(10)
+                       .text('Chart generation skipped for this criteria', { indent: 20 });
                 }
-            }
-            
-            // Add a divider
-            doc.moveTo(50, doc.y + 10).lineTo(550, doc.y + 10).stroke('#e0e0e0');
-            doc.moveDown(0.5);
-        }
-        
-        // Add detailed evaluations section
-        addNewPage();
-        doc.fontSize(18).text('3. DETAILED EVALUATIONS', { underline: true });
-        doc.moveDown();
-        
-        // Add each evaluation
-        evaluations.forEach((evaluation, index) => {
-            // Check for page break
-            if (doc.y > 700) {
+            } else {
+                doc.fillColor('#95a5a6')
+                   .fontSize(10)
+                   .font('Helvetica-Oblique')
+                   .text('Insufficient data for chart generation', { indent: 20 });
+                doc.moveDown(2);
                 addNewPage();
-            } else if (index > 0) {
-                doc.moveDown();
             }
-            
-            doc.fontSize(10);
-            doc.font('Helvetica-Bold').text(`Evaluation ${index + 1}:`);
-            doc.font('Helvetica');
-            
-            const details = [
-                `Criteria: ${evaluation.criteria.code} - ${evaluation.criteria.name}`,
-                evaluation.submission 
-                    ? `Submission: ${evaluation.submission.title}`
-                    : 'Type: General Criteria Evaluation',
-                evaluation.submission?.student 
-                    ? `Student: ${evaluation.submission.student.name} (${evaluation.submission.student.email})`
-                    : null,
-                `Marks: ${evaluation.marks || 'N/A'}%`,
-                evaluation.comments ? `Comments: ${evaluation.comments}` : null,
-                `Date: ${new Date(evaluation.evaluationDate).toLocaleDateString()}`
-            ].filter(Boolean);
-            
-            details.forEach((detail, i) => {
-                doc.text(`• ${detail}`, { indent: 20, paragraphGap: 2 });
-            });
-            
-            // Add a thin divider
-            doc.moveTo(50, doc.y + 5).lineTo(550, doc.y + 5).stroke('#f0f0f0');
-        });
+        
+        } // Close the for loop for processing criteria
         
         // Add final page with summary
         addNewPage();
